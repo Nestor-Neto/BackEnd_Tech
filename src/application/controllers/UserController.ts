@@ -33,6 +33,23 @@ import fs from 'fs';
  *         imageUrl:
  *           type: string
  *           description: URL da imagem do usuário
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Data de criação do usuário
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Data de atualização do usuário
+ *     Error:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Mensagem de erro
+ *         error:
+ *           type: string
+ *           description: Detalhes do erro
  */
 
 export class UserController {
@@ -82,10 +99,22 @@ export class UserController {
    *     responses:
    *       201:
    *         description: Usuário criado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    *       400:
-   *         description: Usuário já existe
+   *         description: Dados inválidos ou usuário já existe
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       500:
    *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   async create(req: Request, res: Response): Promise<Response> {
     try {
@@ -170,10 +199,34 @@ export class UserController {
    *     responses:
    *       200:
    *         description: Autenticação bem-sucedida
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 token:
+   *                   type: string
+   *                   description: Token de autenticação
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dados inválidos
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       401:
    *         description: Credenciais inválidas
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       500:
    *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   async authenticate(req: Request, res: Response): Promise<Response> {
     try {
@@ -229,6 +282,10 @@ export class UserController {
    *                 $ref: '#/components/schemas/User'
    *       500:
    *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   async list(req: Request, res: Response): Promise<Response> {
     try {
@@ -274,10 +331,28 @@ export class UserController {
    *     responses:
    *       200:
    *         description: Usuário atualizado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dados inválidos ou email já em uso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       404:
    *         description: Usuário não encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       500:
    *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   async update(req: Request, res: Response): Promise<Response> {
     try {
@@ -321,8 +396,16 @@ export class UserController {
    *         description: Usuário excluído com sucesso
    *       404:
    *         description: Usuário não encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    *       500:
    *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
    */
   async delete(req: Request, res: Response): Promise<Response> {
     try {

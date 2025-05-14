@@ -76,19 +76,19 @@ export class UserService implements IUserService {
     // Verificar se já existe usuário com o mesmo nome
     const existingUserByName = await this.userRepository.findByName(normalizedUserData.name);
     if (existingUserByName) {
-      throw new Error('Usuário já está cadastrado');
+      throw new Error('Usuário já existe usuário com o mesmo nome');
     }
 
     // Verificar se já existe usuário com o mesmo email
     const existingUserByEmail = await this.userRepository.findByEmail(normalizedUserData.email);
     if (existingUserByEmail) {
-      throw new Error('Usuário já está cadastrado');
+      throw new Error('Usuário já existe usuário com o mesmo email');
     }
 
     const hashedPassword = await hash(normalizedUserData.password, 8);
     
     // Processar imagem se existir
-    let imageBase64 = undefined;
+    let imageBase64 = null;
     if (normalizedUserData.imageFile) {
       imageBase64 = await this.processImageFile(normalizedUserData.imageFile);
     }
@@ -118,7 +118,7 @@ export class UserService implements IUserService {
 
     const passwordMatch = await compare(password, user.password);
     if (!passwordMatch) {
-      throw new Error('Senha incorreta');
+      throw new Error('Invalid credentials');
     }
 
     const secret = process.env.JWT_SECRET || 'default';

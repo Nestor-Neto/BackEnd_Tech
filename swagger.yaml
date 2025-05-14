@@ -1,0 +1,359 @@
+openapi: 3.0.3
+info:
+  title: EricTech API
+  description: API para gerenciamento de usuários e criptomoedas
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /users:
+    post:
+      summary: Criar novo usuário
+      tags: [Users]
+      description: Cria um novo usuário. Nome e e-mail devem ser únicos. Permite upload de imagem de perfil.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  description: Nome do usuário (único)
+                  example: joaosilva
+                email:
+                  type: string
+                  format: email
+                  description: E-mail do usuário (único)
+                  example: joao@email.com
+                password:
+                  type: string
+                  description: Senha do usuário
+                  example: senhaSegura123
+                description:
+                  type: string
+                  description: Descrição do usuário
+                  example: Desenvolvedor backend
+                image:
+                  type: string
+                  format: binary
+                  description: Imagem de perfil do usuário (opcional)
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              example:
+                id: 1
+                name: joaosilva
+                email: joao@email.com
+                description: Desenvolvedor backend
+                imageUrl: "base64string..."
+        '400':
+          description: Usuário já existe (nome ou e-mail duplicado)
+          content:
+            application/json:
+              example:
+                message: "Usuário já existe usuário com o mesmo nome"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+    get:
+      summary: Listar usuários
+      tags: [Users]
+      description: Retorna a lista de todos os usuários cadastrados.
+      responses:
+        '200':
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+  /users/authenticate:
+    post:
+      summary: Autenticar usuário
+      tags: [Users]
+      description: Realiza o login do usuário e retorna um token JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: E-mail do usuário
+                  example: joao@email.com
+                password:
+                  type: string
+                  description: Senha do usuário
+                  example: senhaSegura123
+      responses:
+        '200':
+          description: Autenticação bem-sucedida
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  name: joaosilva
+                  email: joao@email.com
+                  description: Desenvolvedor backend
+                  imageUrl: "base64string..."
+                token: "jwt.token.aqui"
+        '400':
+          description: Email e senha são obrigatórios
+          content:
+            application/json:
+              example:
+                message: "Email e senha são obrigatórios"
+        '404':
+          description: Email não encontrado
+          content:
+            application/json:
+              example:
+                message: "Email não encontrado"
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              example:
+                message: "Invalid credentials"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+  /users/{id}:
+    put:
+      summary: Atualizar usuário
+      tags: [Users]
+      description: Atualiza os dados de um usuário existente.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do usuário
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Novo nome do usuário
+                email:
+                  type: string
+                  format: email
+                  description: Novo e-mail do usuário
+                password:
+                  type: string
+                  description: Nova senha do usuário
+                description:
+                  type: string
+                  description: Nova descrição do usuário
+                image:
+                  type: string
+                  format: binary
+                  description: Nova imagem de perfil do usuário
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuário não encontrado"
+        '400':
+          description: E-mail já em uso
+          content:
+            application/json:
+              example:
+                message: "Email already in use"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+    delete:
+      summary: Remover usuário
+      tags: [Users]
+      description: Remove um usuário do sistema.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID do usuário
+      responses:
+        '204':
+          description: Usuário removido com sucesso
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              example:
+                message: "Usuário não encontrado"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+  /cryptocurrencies:
+    get:
+      summary: Listar todas as criptomoedas
+      tags: [Cryptocurrencies]
+      description: Retorna a lista de todas as criptomoedas cadastradas.
+      responses:
+        '200':
+          description: Lista de criptomoedas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cryptocurrency'
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+  /cryptocurrencies/update-prices:
+    post:
+      summary: Atualizar preços das criptomoedas
+      tags: [Cryptocurrencies]
+      description: Atualiza os preços das criptomoedas cadastradas.
+      responses:
+        '200':
+          description: Preços atualizados com sucesso
+          content:
+            application/json:
+              example:
+                message: "Prices updated successfully"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+  /cryptocurrencies/{symbol}:
+    get:
+      summary: Obter preço de uma criptomoeda específica
+      tags: [Cryptocurrencies]
+      description: Retorna os dados de uma criptomoeda específica pelo símbolo.
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: Símbolo da criptomoeda (ex: BTC, ETH)
+      responses:
+        '200':
+          description: Dados da criptomoeda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cryptocurrency'
+        '404':
+          description: Criptomoeda não encontrada
+          content:
+            application/json:
+              example:
+                message: "Cryptocurrency not found"
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              example:
+                message: "Erro interno do servidor"
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        id:
+          type: string
+          description: ID único do usuário
+        name:
+          type: string
+          description: Nome do usuário
+        email:
+          type: string
+          description: Email do usuário
+        password:
+          type: string
+          description: Senha do usuário
+        description:
+          type: string
+          description: Descrição do usuário
+        imageUrl:
+          type: string
+          description: URL da imagem do usuário
+    Cryptocurrency:
+      type: object
+      required:
+        - name
+        - symbol
+        - currentPrice
+      properties:
+        id:
+          type: string
+          description: ID único da criptomoeda
+        name:
+          type: string
+          description: Nome da criptomoeda
+        symbol:
+          type: string
+          description: Símbolo da criptomoeda
+        currentPrice:
+          type: number
+          description: Preço atual
+        marketCap:
+          type: number
+          description: Capitalização de mercado
+        volume24h:
+          type: number
+          description: Volume em 24h
+        priceChange24h:
+          type: number
+          description: Variação de preço em 24h 

@@ -24,8 +24,8 @@ Backend desenvolvido com Node.js, TypeScript, seguindo os princípios da Clean A
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/erictech-backend.git
-cd erictech-backend
+git clone https://github.com/Nestor-Neto/BackEnd_Tech.git
+cd BackEnd_Tech
 ```
 
 2. Instale as dependências:
@@ -38,7 +38,7 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 ```
 NODE_ENV=development
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/erictech
+MONGODB_URI=mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.0
 JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRES_IN=1d
 ```
