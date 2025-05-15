@@ -1,8 +1,8 @@
-# EricTech Backend
+# 🚀 EricTech Backend
 
 Backend desenvolvido com Node.js, TypeScript, seguindo os princípios da Clean Architecture e Domain-Driven Design.
 
-## Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas
 
 - Node.js
 - TypeScript
@@ -13,14 +13,33 @@ Backend desenvolvido com Node.js, TypeScript, seguindo os princípios da Clean A
 - JWT para autenticação
 - Swagger para documentação
 - Multer para upload de imagens
+- Jest para testes
+- Supertest para testes de integração
 
-## Requisitos
+## 🏗️ Arquitetura e Padrões
+
+### Clean Architecture
+O projeto segue os princípios da Clean Architecture, dividindo o código em camadas:
+- **Domain**: Contém as entidades e regras de negócio
+- **Application**: Casos de uso e lógica de aplicação
+- **Infrastructure**: Implementações concretas (banco de dados, frameworks, etc.)
+- **Presentation**: Controllers e rotas
+
+### Domain-Driven Design (DDD)
+- Entidades e Value Objects
+- Agregados
+- Repositórios
+- Serviços de Domínio
+- Eventos de Domínio
+
+## 📋 Requisitos
 
 - Node.js 18 ou superior
 - Docker e Docker Compose
 - MongoDB (opcional, se não usar Docker)
+- Git
 
-## Instalação
+## ⚙️ Instalação
 
 1. Clone o repositório:
 ```bash
@@ -43,53 +62,152 @@ JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRES_IN=1d
 ```
 
-4. Execute com Docker:
+## 🚀 Executando o Projeto
+
+### Usando Docker
 ```bash
 docker-compose up
 ```
 
-Ou execute localmente:
+### Execução Local
 ```bash
 npm run start
 ```
 
-## Documentação da API
+## 🧪 Testes
+
+### Framework de Teste
+- Jest como framework principal
+- Supertest para testes de integração
+- Coverage reports com Jest
+
+### Executando os Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar testes com coverage
+npm run test:coverage
+
+# Executar testes de integração
+npm run test:integration
+
+# Executar testes unitários
+npm run test:unit
+```
+
+### Tipos de Testes
+
+#### Testes Unitários
+- Testes de entidades
+- Testes de serviços
+- Testes de repositórios
+- Testes de casos de uso
+
+#### Testes de Integração
+- Testes de API
+- Testes de banco de dados
+- Testes de autenticação
+
+#### Testes Funcionais
+- Testes de fluxos completos
+- Testes de regras de negócio
+- Testes de validações
+
+## 📚 Documentação da API
 
 A documentação da API está disponível através do Swagger UI em:
 ```
 http://localhost:3000/swagger
 ```
 
-## Endpoints Principais
+## 🔌 Endpoints Principais
 
-### Usuários
-- POST /users - Criar usuário
-- POST /users/authenticate - Autenticar usuário
-- GET /users - Listar usuários
-- PUT /users/:id - Atualizar usuário
-- DELETE /users/:id - Excluir usuário
+### 👤 Usuários (`UserController`)
+- **POST** `/api/users`
+  - Criação de novo usuário
+  - Body: `{ name: string, email: string, password: string }`
+  - Status: 201 (Created), 400 (Bad Request), 500 (Internal Server Error)
 
-### Criptomoedas
-- GET /cryptocurrencies - Listar criptomoedas
-- GET /cryptocurrencies/:symbol - Obter preço de uma criptomoeda
-- POST /cryptocurrencies/update-prices - Atualizar preços
+- **POST** `/api/users/authenticate`
+  - Autenticação de usuário
+  - Body: `{ email: string, password: string }`
+  - Retorna token JWT
+  - Status: 200 (OK), 400 (Bad Request), 401 (Unauthorized), 500 (Internal Server Error)
 
-## Estrutura do Projeto
+- **GET** `/api/users`
+  - Lista todos os usuários
+  - Requer autenticação
+  - Status: 200 (OK), 401 (Unauthorized), 500 (Internal Server Error)
+
+- **PUT** `/api/users/:id`
+  - Atualiza dados do usuário
+  - Requer autenticação
+  - Body: `{ name?: string, email?: string, password?: string }`
+  - Status: 200 (OK), 400 (Bad Request), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+
+- **DELETE** `/api/users/:id`
+  - Remove um usuário
+  - Requer autenticação
+  - Status: 204 (No Content), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+
+### 💰 Criptomoedas (`CryptocurrencyController`)
+- **GET** `/api/cryptocurrencies`
+  - Lista todas as criptomoedas disponíveis
+  - Requer autenticação (API Key)
+  - Status: 200 (OK), 401 (Unauthorized), 500 (Internal Server Error)
+
+- **GET** `/api/cryptocurrencies/name/:name`
+  - Busca criptomoeda por nome
+  - Requer autenticação (API Key)
+  - Parâmetros: `name` (nome da criptomoeda)
+  - Status: 200 (OK), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+
+- **GET** `/api/cryptocurrencies/:id`
+  - Busca criptomoeda por ID
+  - Requer autenticação (API Key)
+  - Parâmetros: `id` (ID da criptomoeda)
+  - Status: 200 (OK), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+
+## 📁 Estrutura do Projeto
 
 ```
 src/
 ├── application/
-│   └── controllers/
+│   ├── controllers/
+│   ├── use-cases/
+│   └── dtos/
 ├── domain/
 │   ├── entities/
-│   └── repositories/
+│   ├── repositories/
+│   ├── services/
+│   └── value-objects/
 ├── infrastructure/
 │   ├── database/
-│   └── repositories/
+│   │   └── mongodb/
+│   ├── repositories/
+│   └── services/
+├── presentation/
+│   ├── routes/
+│   └── middlewares/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── functional/
 └── server.ts
 ```
 
-## Contribuição
+## 💾 Banco de Dados
+
+### MongoDB
+- Banco de dados NoSQL
+- Schemas definidos com TypeORM
+- Índices otimizados
+- Validações de dados
+- Transações quando necessário
+
+## 🤝 Contribuição
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
@@ -97,6 +215,6 @@ src/
 4. Push para a branch (`git push origin feature/nova-feature`)
 5. Abra um Pull Request
 
-## Licença
+## 📄 Licença
 
 Este projeto está sob a licença MIT. 
