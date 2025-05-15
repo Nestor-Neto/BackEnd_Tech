@@ -2,7 +2,7 @@
   "name": "erictech-backend",
   "version": "1.2.0",
   "description": "Backend para gerenciamento de usuários e criptomoedas",
-  "author": "Nestor Ribeiro dos Santos",
+  "author": "Nestor Ribeiro dos Santos Neto",
   "main": "dist/server.js",
   "scripts": {
     "start": "ts-node-dev --respawn --transpile-only src/server.ts",
