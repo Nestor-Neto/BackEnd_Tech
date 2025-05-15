@@ -207,6 +207,27 @@ src/
 - Validações de dados
 - Transações quando necessário
 
+## 💾 Histórico de verisonamento no Git
+
+$ git log --oneline --decorate --graph --all
+*   ea93b70 (HEAD -> main, origin/main, origin/develop, origin/HEAD, develop) Merge tag '1.2.0' into develop
+|\
+| *   6492191 (tag: 1.2.0, master) Merge branch 'release/1.2.0'
+| |\
+| | * 7b7a92b Alteração de versão para 1.2.0
+| |/
+|/|
+* |   b517380 Merge branch 'feature/integracao_Api_externa_criptomoedas' into develop
+|\ \
+| * | d225e61 anotacoes no package
+| * | bfc51af implementacao API das criptos
+|/ /
+* | bcaa602 implementação dos testes
+* | dad9686  versão 1.0.0
+|/
+* 81c631d Initial commit
+
+
 ## 🤝 Contribuição
 
 1. Faça um fork do projeto
@@ -214,6 +235,7 @@ src/
 3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
 5. Abra um Pull Request
+
 
 ## 📄 Licença
 
