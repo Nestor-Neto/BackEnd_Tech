@@ -211,6 +211,7 @@ src/
 
 $ git log --oneline --decorate --graph --all
 *   ea93b70 (HEAD -> main, origin/main, origin/develop, origin/HEAD, develop) Merge tag '1.2.0' into develop
+```mermaid
 |\
 | *   6492191 (tag: 1.2.0, master) Merge branch 'release/1.2.0'
 | |\
@@ -226,7 +227,7 @@ $ git log --oneline --decorate --graph --all
 * | dad9686  versão 1.0.0
 |/
 * 81c631d Initial commit
-
+```
 
 ## 🤝 Contribuição
 
