@@ -66,8 +66,8 @@ app.delete('/users/:id', userController.delete.bind(userController));
 
 // Rotas de Criptomoedas
 app.get('/cryptocurrencies', cryptocurrencyController.list.bind(cryptocurrencyController));
-app.get('/cryptocurrencies/:symbol', cryptocurrencyController.getPrice.bind(cryptocurrencyController));
-app.post('/cryptocurrencies/update-prices', cryptocurrencyController.updatePrices.bind(cryptocurrencyController));
+app.get('/cryptocurrencies/name/:name', cryptocurrencyController.findByName.bind(cryptocurrencyController));
+app.get('/cryptocurrencies/:id', cryptocurrencyController.findById.bind(cryptocurrencyController));
 
 // Inicialização do servidor
 const PORT = process.env.PORT || 3000;

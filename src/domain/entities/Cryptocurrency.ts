@@ -23,9 +23,16 @@ export class Cryptocurrency {
   @Column('decimal', { precision: 18, scale: 8, nullable: true })
   priceChange24h: number;
 
+  @Column({ type: 'timestamp' })
+  lastUpdated: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  constructor(data: Partial<Cryptocurrency>) {
+    Object.assign(this, data);
+  }
 } 
