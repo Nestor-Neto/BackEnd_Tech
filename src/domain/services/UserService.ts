@@ -64,7 +64,7 @@ export class UserService implements IUserService {
     email: string;
     password: string;
     description?: string;
-    imageFile?: Express.Multer.File;
+    imageBase64?: string;
   }): Promise<User> {
     // Converter nome e email para minúsculos
     const normalizedUserData = {
@@ -73,35 +73,32 @@ export class UserService implements IUserService {
       email: userData.email.toLowerCase()
     };
 
-    // Verificar se já existe usuário com o mesmo nome
-    const existingUserByName = await this.userRepository.findByName(normalizedUserData.name);
-    if (existingUserByName) {
-      throw new Error('Usuário já existe usuário com o mesmo nome');
-    }
-
     // Verificar se já existe usuário com o mesmo email
     const existingUserByEmail = await this.userRepository.findByEmail(normalizedUserData.email);
     if (existingUserByEmail) {
-      throw new Error('Usuário já existe usuário com o mesmo email');
+      throw new Error('Usuário já está cadastrado');
     }
 
     const hashedPassword = await hash(normalizedUserData.password, 8);
     
-    // Processar imagem se existir
-    let imageBase64 = null;
-    if (normalizedUserData.imageFile) {
-      imageBase64 = await this.processImageFile(normalizedUserData.imageFile);
-    }
-
     const user = await this.userRepository.create({
       name: normalizedUserData.name,
       email: normalizedUserData.email,
       password: hashedPassword,
       description: normalizedUserData.description,
-      imageUrl: imageBase64
+      imageUrl: userData.imageBase64
     } as User);
 
-    return user;
+    
+    return {
+      id: user._id ? user._id.toString() : user.id,
+      name: user.name,
+      email: user.email,
+      description: user.description,
+      imageUrl: user.imageUrl,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    } as User;
   }
 
   async authenticateUser(email: string, password: string): Promise<{ user: User; token: string }> {
@@ -112,6 +109,7 @@ export class UserService implements IUserService {
     // Converter email para minúsculos na autenticação também
     const normalizedEmail = email.toLowerCase();
     const user = await this.userRepository.findByEmail(normalizedEmail);
+    
     if (!user) {
       throw new Error('Email não encontrado');
     }
@@ -124,15 +122,18 @@ export class UserService implements IUserService {
     const secret = process.env.JWT_SECRET || 'default';
     const expiresIn = process.env.JWT_EXPIRES_IN || '1d';
 
+    // Converter o ObjectId para string
+    const userId = user._id ? user._id.toString() : user.id;
+
     const token = sign(
-      { id: user.id },
+      { id: userId },
       secret,
       { expiresIn }
     );
 
-    // Remover a senha do objeto de resposta
+    // Remover a senha do objeto de resposta e garantir que o ID seja incluído como string
     const userResponse = {
-      id: user.id,
+      id: userId, // Usando o ID convertido para string
       name: user.name,
       email: user.email,
       description: user.description,
@@ -148,30 +149,31 @@ export class UserService implements IUserService {
     return this.userRepository.findById(id);
   }
 
-  async updateUser(id: string, userData: Partial<User> & { imageFile?: Express.Multer.File }): Promise<User> {
+  async updateUser(id: string, userData: Partial<User> & { imageBase64?: string }): Promise<User> {
+    console.log('Atualizando userService: ', { id, userData });
+
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Usuário não encontrado!');
     }
 
-    if (userData.email) {
-      const existingUser = await this.userRepository.findByEmail(userData.email);
-      if (existingUser && existingUser.id !== id) {
-        throw new Error('Email already in use');
+    // Converter nome para minúsculos
+    if (userData.name) {
+      userData.name = userData.name.toLowerCase();
+    }
+    // Processar imagem base64 se existir
+    if (userData.imageBase64) {
+      userData.imageUrl = userData.imageBase64;
+    } else {
+      // Se não houver nova imagem, manter a imagem atual
+      const existingUser = await this.userRepository.findById(id);
+      if (existingUser) {
+        userData.imageUrl = existingUser.imageUrl;
       }
     }
 
-    if (userData.password) {
-      userData.password = await hash(userData.password, 8);
-    }
-
-    // Processar imagem se existir
-    if (userData.imageFile) {
-      userData.imageUrl = await this.processImageFile(userData.imageFile);
-    }
-
-    // Remover imageFile do objeto antes de atualizar
-    const { imageFile, ...userDataToUpdate } = userData;
+    // Remover imageBase64 do objeto antes de atualizar
+    const { imageBase64, ...userDataToUpdate } = userData;
 
     return this.userRepository.update(id, userDataToUpdate);
   }
@@ -179,7 +181,7 @@ export class UserService implements IUserService {
   async deleteUser(id: string): Promise<void> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('usuário não encontrado!');
     }
 
     await this.userRepository.delete(id);

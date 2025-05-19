@@ -127,48 +127,42 @@ http://localhost:3000/swagger
 ### 👤 Usuários (`UserController`)
 - **POST** `/api/users`
   - Criação de novo usuário
-  - Body: `{ name: string, email: string, password: string }`
+  - Body: `{ name: string, email: string, password: string, description?: string, imageBase64?: string }`
   - Status: 201 (Created), 400 (Bad Request), 500 (Internal Server Error)
 
 - **POST** `/api/users/authenticate`
   - Autenticação de usuário
   - Body: `{ email: string, password: string }`
-  - Retorna token JWT
+  - Retorna token JWT e dados do usuário
   - Status: 200 (OK), 400 (Bad Request), 401 (Unauthorized), 500 (Internal Server Error)
 
 - **GET** `/api/users`
   - Lista todos os usuários
-  - Requer autenticação
-  - Status: 200 (OK), 401 (Unauthorized), 500 (Internal Server Error)
+  - Status: 200 (OK), 500 (Internal Server Error)
 
 - **PUT** `/api/users/:id`
   - Atualiza dados do usuário
-  - Requer autenticação
-  - Body: `{ name?: string, email?: string, password?: string }`
-  - Status: 200 (OK), 400 (Bad Request), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+  - Body: `{ id: string, name?: string, description?: string, imageBase64?: string }`
+  - Status: 200 (OK), 400 (Bad Request), 404 (Not Found), 500 (Internal Server Error)
 
 - **DELETE** `/api/users/:id`
   - Remove um usuário
-  - Requer autenticação
-  - Status: 204 (No Content), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+  - Status: 204 (No Content), 404 (Not Found), 500 (Internal Server Error)
 
 ### 💰 Criptomoedas (`CryptocurrencyController`)
 - **GET** `/api/cryptocurrencies`
   - Lista todas as criptomoedas disponíveis
-  - Requer autenticação (API Key)
-  - Status: 200 (OK), 401 (Unauthorized), 500 (Internal Server Error)
+  - Status: 200 (OK), 500 (Internal Server Error)
 
 - **GET** `/api/cryptocurrencies/name/:name`
   - Busca criptomoeda por nome
-  - Requer autenticação (API Key)
   - Parâmetros: `name` (nome da criptomoeda)
-  - Status: 200 (OK), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+  - Status: 200 (OK), 404 (Not Found), 500 (Internal Server Error)
 
 - **GET** `/api/cryptocurrencies/:id`
   - Busca criptomoeda por ID
-  - Requer autenticação (API Key)
   - Parâmetros: `id` (ID da criptomoeda)
-  - Status: 200 (OK), 401 (Unauthorized), 404 (Not Found), 500 (Internal Server Error)
+  - Status: 200 (OK), 404 (Not Found), 500 (Internal Server Error)
 
 ## 📁 Estrutura do Projeto
 

@@ -6,7 +6,7 @@ export interface IUserService {
     email: string;
     password: string;
     description?: string;
-    imageUrl?: string;
+    imageBase64?: string;
   }): Promise<User>;
   
   authenticateUser(email: string, password: string): Promise<{ user: User; token: string }>;
@@ -15,7 +15,7 @@ export interface IUserService {
   
   findUserByEmail(email: string): Promise<User | null>;
   
-  updateUser(id: string, userData: Partial<User>): Promise<User>;
+  updateUser(id: string, userData: Partial<User> & { imageBase64?: string }): Promise<User>;
   
   deleteUser(id: string): Promise<void>;
   

@@ -50,6 +50,12 @@ import fs from 'fs';
  *         error:
  *           type: string
  *           description: Detalhes do erro
+ *     Success:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Mensagem de sucesso
  */
 
 export class UserController {
@@ -58,14 +64,6 @@ export class UserController {
   constructor() {
     const userRepository = new UserRepository();
     this.userService = new UserService(userRepository);
-  }
-
-  async findUserByName(name: string): Promise<User | null> {
-    return this.userService.findUserByName(name);
-  }
-
-  async findUserByEmail(email: string): Promise<User | null> {
-    return this.userService.findUserByEmail(email);
   }
 
   /**
@@ -77,7 +75,7 @@ export class UserController {
    *     requestBody:
    *       required: true
    *       content:
-   *         multipart/form-data:
+   *         application/json:
    *           schema:
    *             type: object
    *             required:
@@ -87,15 +85,19 @@ export class UserController {
    *             properties:
    *               name:
    *                 type: string
+   *                 description: Nome do usuário (não pode ser vazio)
    *               email:
    *                 type: string
+   *                 description: Email do usuário (deve ser único)
    *               password:
    *                 type: string
+   *                 description: Senha do usuário
    *               description:
    *                 type: string
-   *               image:
+   *                 description: Descrição do usuário
+   *               imageBase64:
    *                 type: string
-   *                 format: binary
+   *                 description: Imagem em formato base64
    *     responses:
    *       201:
    *         description: Usuário criado com sucesso
@@ -118,13 +120,24 @@ export class UserController {
    */
   async create(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, email, password, description } = req.body;
-      const imageFile = req.file;
+      const { name, email, password, description, imageBase64 } = req.body;
 
       // Validar campos obrigatórios
-      if (!name || !email || !password) {
+      if (!name || name.trim() === '') {
         return res.status(400).json({ 
-          message: 'Nome, email e senha são obrigatórios' 
+          message: 'Nome é obrigatório e não pode ser vazio' 
+        });
+      }
+
+      if (!email || email.trim() === '') {
+        return res.status(400).json({ 
+          message: 'Email é obrigatório e não pode ser vazio' 
+        });
+      }
+
+      if (!password) {
+        return res.status(400).json({ 
+          message: 'Senha é obrigatória' 
         });
       }
 
@@ -132,7 +145,7 @@ export class UserController {
         name, 
         email, 
         description, 
-        hasImage: !!imageFile,
+        hasImage: !!imageBase64,
         hasPassword: !!password 
       });
 
@@ -141,7 +154,7 @@ export class UserController {
         email,
         password,
         description,
-        imageFile,
+        imageBase64,
       });
 
       console.log('Usuário criado com sucesso:', { id: user.id, email: user.email });
@@ -164,7 +177,7 @@ export class UserController {
       // Tratar erro específico de usuário já cadastrado
       if (error instanceof Error && error.message === 'Usuário já está cadastrado') {
         return res.status(400).json({ 
-          message: error.message 
+          message: 'Este email já está cadastrado no sistema' 
         });
       }
 
@@ -173,6 +186,102 @@ export class UserController {
         message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  }
+
+  /**
+   * @swagger
+   * /users/{id}:
+   *   put:
+   *     summary: Atualizar um usuário
+   *     tags: [Users]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - id
+   *             properties:
+   *               id:
+   *                 type: string
+   *                 description: ID do usuário
+   *               name:
+   *                 type: string
+   *                 description: Nome do usuário
+   *               description:
+   *                 type: string
+   *                 description: Descrição do usuário
+   *               imageBase64:
+   *                 type: string
+   *                 description: Imagem em formato base64
+   *     responses:
+   *       200:
+   *         description: Usuário atualizado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dados inválidos ou nome já em uso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: Usuário não encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       500:
+   *         description: Erro interno do servidor
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  async update(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id, name, description, imageBase64 } = req.body;
+      
+      console.log('Dados recebidos para atualização:', { id, name, description, hasImage: !!imageBase64 });
+      
+      if (!id) {
+        return res.status(400).json({ message: 'ID do usuário é obrigatório' });
+      }
+
+      const user = await this.userService.updateUser(id, {
+        name,
+        description,
+        imageBase64,
+      });
+
+      console.log('Usuário atualizado com sucesso:', { id: user.id, name: user.name });
+      
+      // Remover a senha do objeto de resposta
+      const userResponse = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        description: user.description,
+        imageUrl: user.imageUrl,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      };
+
+      return res.json(userResponse);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'usuário não encontrado!') {
+        return res.status(404).json({ message: error.message });
+      }
+      if (error instanceof Error && error.message === 'Nome já está em uso') {
+        return res.status(400).json({ message: error.message });
+      }
+
+      console.error('Erro ao atualizar usuário:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 
@@ -300,84 +409,6 @@ export class UserController {
     }
   }
 
-  /**
-   * @swagger
-   * /users/{id}:
-   *   put:
-   *     summary: Atualizar um usuário
-   *     tags: [Users]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: string
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         multipart/form-data:
-   *           schema:
-   *             type: object
-   *             properties:
-   *               name:
-   *                 type: string
-   *               email:
-   *                 type: string
-   *               description:
-   *                 type: string
-   *               image:
-   *                 type: string
-   *                 format: binary
-   *     responses:
-   *       200:
-   *         description: Usuário atualizado com sucesso
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/User'
-   *       400:
-   *         description: Dados inválidos ou email já em uso
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
-   *       404:
-   *         description: Usuário não encontrado
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
-   *       500:
-   *         description: Erro interno do servidor
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
-   */
-  async update(req: Request, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
-      const { name, email, description } = req.body;
-      const imageFile = req.file;
-
-      const user = await this.userService.updateUser(id, {
-        name,
-        email,
-        description,
-        imageFile,
-      });
-
-      return res.json(user);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'User not found') {
-        return res.status(404).json({ message: error.message });
-      }
-      if (error instanceof Error && error.message === 'Email already in use') {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-  }
 
   /**
    * @swagger
@@ -411,9 +442,9 @@ export class UserController {
     try {
       const { id } = req.params;
       await this.userService.deleteUser(id);
-      return res.status(204).send();
+      return res.status(204).send("Usuário excluído com sucesso");
     } catch (error) {
-      if (error instanceof Error && error.message === 'User not found') {
+      if (error instanceof Error && error.message === 'usuário não encontrado!') {
         return res.status(404).json({ message: error.message });
       }
       return res.status(500).json({ message: 'Internal server error' });
